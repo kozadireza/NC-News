@@ -35,6 +35,9 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       return isertArticlesData({ articleData });
     })
     .then(() => {
+      return updateArticlesVotes();
+    })
+    .then(() => {
       return isertCommentsData({ commentData });
     });
 };
@@ -106,8 +109,8 @@ function insertUsersData({ userData }) {
 async function isertArticlesData({ articleData }) {
   const requstToTableTopics = await db.query(`select slug FROM topics`);
   const requstToTableUsers = await db.query(`select username  FROM users`);
-  // console.log(requstToTableTopics.rows);
-  // console.log(requstToTableUsers.rows);
+  console.log(requstToTableTopics.rows, "<<<<<<<<<,topicRequest");
+  console.log(requstToTableUsers.rows, "<<<<<<<<<,UserRequest");
   const formatDataArt = articleData.map((article) => {
     const currentAuthor = requstToTableUsers.rows.filter((user) => {
       if (user.username === article.author) return user.username;
@@ -133,7 +136,9 @@ async function isertArticlesData({ articleData }) {
 
   return db.query(readyToInsert);
 }
-
+function updateArticlesVotes() {
+  return db.query(`UPDATE articles SET votes = 0 WHERE votes IS NULL`);
+}
 async function isertCommentsData({ commentData }) {
   const requstToTableArt = await db.query(
     `select article_id, title FROM articles`

@@ -2,44 +2,46 @@ const db = require("../connection");
 const format = require("pg-format");
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
-  return db
-    .query(`DROP TABLE IF EXISTS comments`)
-    .then(() => {
-      return db.query("DROP TABLE IF EXISTS articles;");
-    })
-    .then(() => {
-      return db.query("DROP TABLE IF EXISTS topics;");
-    })
-    .then(() => {
-      return db.query("DROP TABLE IF EXISTS users;");
-    })
-    .then(() => {
-      return createTopicsTable();
-    })
-    .then(() => {
-      return createUsersTable();
-    })
-    .then(() => {
-      return createArticlesTable();
-    })
-    .then(() => {
-      return createCommentsTable();
-    })
-    .then(() => {
-      return insertTopicsData({ topicData });
-    })
-    .then(() => {
-      return insertUsersData({ userData });
-    })
-    .then(() => {
-      return isertArticlesData({ articleData });
-    })
-    .then(() => {
-      return updateArticlesVotes();
-    })
-    .then(() => {
-      return isertCommentsData({ commentData });
-    });
+  return (
+    db
+      .query(`DROP TABLE IF EXISTS comments`)
+      .then(() => {
+        return db.query("DROP TABLE IF EXISTS articles;");
+      })
+      .then(() => {
+        return db.query("DROP TABLE IF EXISTS topics;");
+      })
+      .then(() => {
+        return db.query("DROP TABLE IF EXISTS users;");
+      })
+      .then(() => {
+        return createTopicsTable();
+      })
+      .then(() => {
+        return createUsersTable();
+      })
+      .then(() => {
+        return createArticlesTable();
+      })
+      .then(() => {
+        return createCommentsTable();
+      })
+      .then(() => {
+        return insertTopicsData({ topicData });
+      })
+      .then(() => {
+        return insertUsersData({ userData });
+      })
+      .then(() => {
+        return isertArticlesData({ articleData });
+      })
+      // .then(() => {
+      //   return updateArticlesVotes();
+      // })
+      .then(() => {
+        return isertCommentsData({ commentData });
+      })
+  );
 };
 
 function createTopicsTable() {
@@ -125,7 +127,7 @@ async function isertArticlesData({ articleData }) {
       currentTopic[0].slug,
       currentAuthor[0].username,
       article.body,
-      article.votes,
+      article.votes ?? 0,
       article.article_img_url,
     ];
   });
@@ -136,9 +138,9 @@ async function isertArticlesData({ articleData }) {
 
   return db.query(readyToInsert);
 }
-function updateArticlesVotes() {
-  return db.query(`UPDATE articles SET votes = 0 WHERE votes IS NULL`);
-}
+// function updateArticlesVotes() {
+//   return db.query(`UPDATE articles SET votes = 0 WHERE votes IS NULL`);
+// }
 async function isertCommentsData({ commentData }) {
   const requstToTableArt = await db.query(
     `select article_id, title FROM articles`

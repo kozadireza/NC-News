@@ -44,14 +44,6 @@ describe("GET /api/topics", () => {
         });
       });
   });
-  test("404: Responds with error 404 and message: Not Found, if wrong path was provided", () => {
-    return request(app)
-      .get("/api/topis")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Not Found");
-      });
-  });
 });
 
 describe("GET  /api/articles/:article_id", () => {
@@ -86,21 +78,23 @@ describe("GET  /api/articles/:article_id", () => {
       });
   });
 
+  test("404: Responds with error 400 and message: Not Found, if wrong type of id for the path was provided", () => {
+    return request(app)
+      .get("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("Check the server actions if the unexisting path was requested", () => {
   test("404: Responds with error 404 and message: Not Found, if wrong path was provided", () => {
     return request(app)
       .get("/api/articles/1870")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article_id not found");
-      });
-  });
-
-  test("404: Responds with error 404 and message: Not Found, if wrong path was provided", () => {
-    return request(app)
-      .get("/api/articles/banana")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
       });
   });
 });

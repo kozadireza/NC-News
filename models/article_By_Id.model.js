@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { checkSpeciesExists } = require("../db/seeds/utils");
+const { checkValueExists } = require("../db/seeds/utils");
 
 exports.fetchArticleById = async (id) => {
   const checkTreasureIsExisting = await checkSpeciesExists(

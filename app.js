@@ -1,6 +1,6 @@
 const express = require("express");
 const { getIPA } = require("./controllers/api.controller");
-const { GetApiTopics } = require("./controllers/topics.controller");
+const { getApiTopics } = require("./controllers/topics.controller");
 const { getArticleById } = require("./controllers/article_By_Id.controller");
 const {
   handlePsqlErrors,
@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.get("/api", getIPA);
 
-app.get("/api/topics", GetApiTopics);
+app.get("/api/topics", getApiTopics);
 
 app.get("/api/articles/:article_id", getArticleById);
 

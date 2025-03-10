@@ -1,6 +1,6 @@
 const {
   convertTimestampToDate,
-  checkSpeciesExists,
+  checkValueExists,
   formatData,
   createRef,
 } = require("../db/seeds/utils");
@@ -119,7 +119,7 @@ describe("checkSpeciesExists", () => {
     const column_name = "article_id";
     const searchedValue = 29;
     try {
-      await checkSpeciesExists(table, column_name, searchedValue);
+      await checkValueExists(table, column_name, searchedValue);
     } catch (err) {
       expect(err).toEqual({ status: 404, msg: "article_id not found" });
     }
@@ -128,7 +128,7 @@ describe("checkSpeciesExists", () => {
     const table = "comments";
     const column_name = "article_id";
     const searchedValue = 1;
-    const checkResult = await checkSpeciesExists(
+    const checkResult = await checkValueExists(
       table,
       column_name,
       searchedValue

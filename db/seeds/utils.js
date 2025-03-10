@@ -19,7 +19,7 @@ exports.formatData = (refObj, keyToRemove, keyToAdd, rawData) => {
   });
 };
 
-exports.checkSpeciesExists = async (table, column, value) => {
+exports.checkValueExists = async (table, column, value) => {
   // console.log(column);
   // console.log(table);
   // console.log(value);

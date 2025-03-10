@@ -4,6 +4,7 @@
         "Psql",
         "querystr",
         "regclass",
+        "unexisting",
         "weegembump"
     ]
 }

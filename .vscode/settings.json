@@ -3,6 +3,7 @@
         "nextval",
         "Psql",
         "querystr",
-        "regclass"
+        "regclass",
+        "weegembump"
     ]
 }

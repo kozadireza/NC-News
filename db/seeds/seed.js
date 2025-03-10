@@ -33,13 +33,13 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         return insertUsersData({ userData });
       })
       .then(() => {
-        return isertArticlesData({ articleData });
+        return insertArticlesData({ articleData });
       })
       // .then(() => {
       //   return updateArticlesVotes();
       // })
       .then(() => {
-        return isertCommentsData({ commentData });
+        return insertCommentsData({ commentData });
       })
   );
 };
@@ -89,11 +89,11 @@ function insertTopicsData({ topicData }) {
     return [topic.slug, topic.description, topic.img_url];
   });
 
-  const readyQurery = format(
+  const readyQuery = format(
     `INSERT INTO topics (slug, description, img_url) VALUES %L returning slug`,
     formateTopicData
   );
-  return db.query(readyQurery);
+  return db.query(readyQuery);
 }
 
 function insertUsersData({ userData }) {
@@ -101,24 +101,24 @@ function insertUsersData({ userData }) {
     return [user.username, user.name, user.avatar_url];
   });
 
-  const readyQurery = format(
+  const readyQuery = format(
     `INSERT INTO users (username, name, avatar_url) VALUES %L returning username`,
     formateTopicData
   );
-  return db.query(readyQurery);
+  return db.query(readyQuery);
 }
 
-async function isertArticlesData({ articleData }) {
-  const requstToTableTopics = await db.query(`select slug FROM topics`);
-  const requstToTableUsers = await db.query(`select username  FROM users`);
-  console.log(requstToTableTopics.rows, "<<<<<<<<<,topicRequest");
-  console.log(requstToTableUsers.rows, "<<<<<<<<<,UserRequest");
+async function insertArticlesData({ articleData }) {
+  const requestToTableTopics = await db.query(`select slug FROM topics`);
+  const requestToTableUsers = await db.query(`select username  FROM users`);
+  //console.log(requestToTableTopics.rows, "<<<<<<<<<,topicRequest");
+  //console.log(requestToTableUsers.rows, "<<<<<<<<<,UserRequest");
   const formatDataArt = articleData.map((article) => {
-    const currentAuthor = requstToTableUsers.rows.filter((user) => {
+    const currentAuthor = requestToTableUsers.rows.filter((user) => {
       if (user.username === article.author) return user.username;
     });
 
-    const currentTopic = requstToTableTopics.rows.filter((topic) => {
+    const currentTopic = requestToTableTopics.rows.filter((topic) => {
       return topic.slug === article.topic;
     });
     // console.log(currentTopic[0].slug);
@@ -141,23 +141,23 @@ async function isertArticlesData({ articleData }) {
 // function updateArticlesVotes() {
 //   return db.query(`UPDATE articles SET votes = 0 WHERE votes IS NULL`);
 // }
-async function isertCommentsData({ commentData }) {
-  const requstToTableArt = await db.query(
+async function insertCommentsData({ commentData }) {
+  const requestToTableArt = await db.query(
     `select article_id, title FROM articles`
   );
-  const requstToTableUsers = await db.query(`select username  FROM users`);
-  console.log(requstToTableArt.rows);
-  // console.log(requstToTableUsers.rows);
-  const formatDataComents = commentData.map((comment) => {
-    const currentAuthor = requstToTableUsers.rows.filter((user) => {
+  const requestToTableUsers = await db.query(`select username  FROM users`);
+  //console.log(requestToTableArt.rows);
+  // console.log(requestToTableUsers.rows);
+  const formatDataComments = commentData.map((comment) => {
+    const currentAuthor = requestToTableUsers.rows.filter((user) => {
       if (user.username === comment.author) return user.username;
     });
 
-    const currentArticle = requstToTableArt.rows.filter((article) => {
+    const currentArticle = requestToTableArt.rows.filter((article) => {
       //console.log(article.title);
       return article.title === comment.article_title;
     });
-    console.log(currentArticle);
+    //console.log(currentArticle);
     return [
       currentArticle[0].article_id,
       comment.body,
@@ -167,7 +167,7 @@ async function isertCommentsData({ commentData }) {
   });
   const readyToInsert = format(
     `INSERT INTO comments (article_id, body, votes, author) VALUES %L`,
-    formatDataComents
+    formatDataComments
   );
 
   return db.query(readyToInsert);

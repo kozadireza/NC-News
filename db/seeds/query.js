@@ -21,7 +21,7 @@ async function selectionFromDB() {
   ).rows;
   //   console.log(
   //     lowVotedComments,
-  //     "<<<<<< selection of coments with negative amount of votes"
+  //     "<<<<<< selection of comments with negative amount of votes"
   //   );
   const allTopics = (await db.query(`SELECT * FROM topics`)).rows;
   //   console.log(allTopics, "<<<<<< selection of all topics in DB");
@@ -31,10 +31,10 @@ async function selectionFromDB() {
   ).rows;
   //   console.log(allGrumpy19Articles, "<<<< selection of user's articles");
 
-  const comentsWITH10 = (
+  const commentsWITH10 = (
     await db.query(`SELECT * FROM comments WHERE votes > 10`)
   ).rows;
-  console.log(comentsWITH10, "<<<< selection of user's articles");
+  console.log(commentsWITH10, "<<<< selection of user's articles");
 }
 
 selectionFromDB();

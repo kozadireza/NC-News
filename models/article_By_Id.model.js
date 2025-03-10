@@ -2,17 +2,15 @@ const db = require("../db/connection");
 const { checkValueExists } = require("../db/seeds/utils");
 
 exports.fetchArticleById = async (id) => {
-  const checkTreasureIsExisting = await checkValueExists(
+  const checkValueIsExisting = await checkValueExists(
     "articles",
     "article_id",
     id
   );
-  if (!checkTreasureIsExisting) {
-    // console.log(checkTreasureIsExisting);
+  if (!checkValueIsExisting) {
     return db
       .query(`SELECT * from articles WHERE article_id = $1`, [id])
       .then(({ rows }) => {
-        //console.log(rows);
         return rows[0];
       });
   } else {

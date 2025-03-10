@@ -1,4 +1,3 @@
-const app = require("../app");
 const { fetchApiTopics } = require("../models/topics.model");
 
 exports.getApiTopics = (req, res) => {

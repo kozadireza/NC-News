@@ -100,20 +100,10 @@ describe("GET  /api/articles/:article_id", () => {
       .get("/api/articles/12")
       .expect(200)
       .then(({ body }) => {
-        console.log(body);
         expect(Object.keys(body)[0]).toBe("article");
         expect(typeof body.article).toBe("object");
 
         expect(Object.keys(body.article).length).toBe(8);
-
-        expect(Object.keys(body.article)).toContain("topic");
-        expect(Object.keys(body.article)).toContain("article_id");
-        expect(Object.keys(body.article)).toContain("title");
-        expect(Object.keys(body.article)).toContain("author");
-        expect(Object.keys(body.article)).toContain("body");
-        expect(Object.keys(body.article)).toContain("created_at");
-        expect(Object.keys(body.article)).toContain("votes");
-        expect(Object.keys(body.article)).toContain("article_img_url");
 
         expect(typeof body.article.topic).toBe("string");
         expect(body.article.article_id).toBe(12);

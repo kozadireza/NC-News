@@ -4,7 +4,12 @@ const {
   formatData,
   createRef,
 } = require("../db/seeds/utils");
+const seed = require("../db/seeds/seed");
+const data = require("../db/data/test-data");
+const db = require("../db/connection");
 
+beforeAll(() => seed(data));
+afterAll(() => db.end());
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
     const timestamp = 1557572706232;

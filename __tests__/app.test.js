@@ -4,6 +4,7 @@ const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const app = require("../app");
 const db = require("../db/connection");
+require("jest-sorted");
 /* Set up your test imports here */
 
 /* Set up your beforeEach & afterAll functions here */
@@ -46,8 +47,55 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe("GET /api/articles", () => {
+  test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'comment_count', containing  total count of all the comments with this article_id , which should be sorted by date in descending order", () => {
+    return db
+      .query(
+        `INSERT INTO articles (title, topic, author, body, votes, article_img_url) VALUES ('orange', 'cats', 'rogersop', 'banana', 34, 'tomato') `
+      )
+      .then(() => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(Array.isArray(articles)).toBe(true);
+
+            articles.forEach((article) => {
+              expect(Object.keys(article).length).toBe(8);
+
+              expect(typeof article.author).toBe("string");
+              expect(typeof article.article_id).toBe("number");
+              expect(typeof article.title).toBe("string");
+              expect(typeof article.topic).toBe("string");
+              expect(typeof article.created_at).toBe("string");
+              expect(typeof article.votes).toBe("number");
+              expect(typeof article.article_img_url).toBe("string");
+              expect(typeof article.article_comments).toBe("number");
+            });
+            expect(articles).toBeSorted({
+              key: "created_at",
+              descending: true,
+            });
+          });
+      });
+  });
+
+  test("404: Responds with error message if no articles found in DB ", () => {
+    return db.query("DELETE FROM comments").then(() => {
+      return db.query(`DELETE FROM articles;`).then(() => {
+        return request(app)
+          .get("/api/articles")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Not Found");
+          });
+      });
+    });
+  });
+});
+
 describe("GET  /api/articles/:article_id", () => {
-  test("200: Responds with an array of topic objects, each of which have the following properties: slug, description", () => {
+  test("200: Responds with an object containing information about article with requested id", () => {
     return request(app)
       .get("/api/articles/12")
       .expect(200)

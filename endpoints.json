@@ -25,5 +25,24 @@
         }
       ]
     }
+  },
+
+  "GET /api/articles/:article_id": {
+    "description": "serves an object of the articles with requested article_id",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "weegembump",
+          "title": "Student SUES Mitch!",
+          "article_id": 4,
+          "body": "Text from the article..",
+          "topic": "cooking",
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+    }
   }
 }

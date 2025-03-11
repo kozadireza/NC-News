@@ -122,17 +122,20 @@ async function insertArticlesData({ articleData }) {
       return topic.slug === article.topic;
     });
     // console.log(currentTopic[0].slug);
+
+    const formattedCreatedAt = new Date(article.created_at).toISOString();
     return [
       article.title,
       currentTopic[0].slug,
       currentAuthor[0].username,
       article.body,
+      formattedCreatedAt,
       article.votes ?? 0,
       article.article_img_url,
     ];
   });
   const readyToInsert = format(
-    `INSERT INTO articles (title, topic, author, body, votes, article_img_url) VALUES %L`,
+    `INSERT INTO articles (title, topic, author, body, created_at, votes, article_img_url) VALUES %L`,
     formatDataArt
   );
 

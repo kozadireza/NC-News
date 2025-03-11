@@ -106,6 +106,44 @@ describe("GET  /api/articles/:article_id", () => {
   });
 });
 
+describe("PATCH  /api/articles/:article_id", () => {
+  test("200: Responds with an object containing information about updated article with requested id", async () => {
+    const old_article_votes0 = await db.query(
+      `SELECT votes from articles WHERE article_id = 1`
+    );
+    const old_article_votes = old_article_votes0.rows[0].votes;
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 50 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(Object.keys(body)[0]).toBe("updated_article");
+        expect(typeof body.updated_article).toBe("object");
+
+        expect(Object.keys(body.updated_article).length).toBe(8);
+        expect(body.updated_article.votes - old_article_votes).toBe(50);
+
+        expect(typeof body.updated_article.topic).toBe("string");
+        expect(body.updated_article.article_id).toBe(1);
+        expect(typeof body.updated_article.title).toBe("string");
+        expect(typeof body.updated_article.author).toBe("string");
+        expect(typeof body.updated_article.body).toBe("string");
+        expect(typeof body.updated_article.created_at).toBe("string");
+        expect(typeof body.updated_article.votes).toBe("number");
+        expect(typeof body.updated_article.article_img_url).toBe("string");
+      });
+  });
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
+    return request(app)
+      .get("/api/articles/1870")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id not found");
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("200: Responds with an array of comments for the given article_id which  should be served with the most recent comments first.", () => {
     return request(app)
@@ -160,8 +198,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(201)
       .then(({ body }) => {
-        console.log(body);
-
         expect(typeof body).toBe("object");
         expect(Object.keys(body.comment).length).toBe(6);
 

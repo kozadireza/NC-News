@@ -1,7 +1,10 @@
 const express = require("express");
 const { getIPA } = require("./controllers/api.controller");
 const { getApiTopics } = require("./controllers/topics.controller");
-const { getArticleById } = require("./controllers/article_By_Id.controller");
+const {
+  getArticleById,
+  patchArticleById,
+} = require("./controllers/article_By_Id.controller");
 const {
   handlePsqlErrors,
   handleCustomErrors,
@@ -22,6 +25,8 @@ app.get("/api/topics", getApiTopics);
 app.get("/api/articles", getAllArticles);
 
 app.get("/api/articles/:article_id", getArticleById);
+
+app.patch("/api/articles/:article_id", patchArticleById);
 
 app.get("/api/articles/:article_id/comments", getArticleComments);
 

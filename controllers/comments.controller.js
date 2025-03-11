@@ -24,6 +24,7 @@ exports.postArticleComments = (req, res, next) => {
       res.status(201).send({ comment: comment_data[0] });
     })
     .catch((err) => {
+      console.log(err);
       next(err);
     });
 };

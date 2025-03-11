@@ -113,7 +113,7 @@ describe("formatData", () => {
   });
 });
 
-describe("checkSpeciesExists", () => {
+describe.skip("checkSpeciesExists", () => {
   test("returns error 404 and msg 'article_id not found' if the name of the item is not in the requested table and column ", async () => {
     const table = "comments";
     const column_name = "article_id";

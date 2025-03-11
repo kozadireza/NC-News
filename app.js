@@ -36,7 +36,7 @@ app.post("/api/articles/:article_id/comments", postArticleComments);
 app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.all(`*`, (req, res) => {
-  res.status(404).send({ msg: "Not Found" });
+  res.status(404).send({ msg: "Page not found" });
 });
 
 app.use(handlePsqlErrors);

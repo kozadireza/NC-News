@@ -1,10 +1,21 @@
 exports.handlePsqlErrors = (err, req, res, next) => {
   // console.log(err);
   if (err.code === "22P02") {
-    res.status(400).send({ msg: "Bad Request" });
+    res
+      .status(400)
+      .send({ msg: "Invalid data format — please check your input." });
   }
   if (err.code === "42703") {
-    res.status(400).send({ msg: "Bad Request" });
+    res
+      .status(400)
+      .send({
+        msg: "Invalid column name — please verify your request parameters.",
+      });
+  }
+  if (err.code === "23503") {
+    res
+      .status(400)
+      .send({ msg: "Resource not found — referenced data does not exist." });
   }
   next(err);
 };

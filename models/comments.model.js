@@ -26,13 +26,7 @@ exports.fetchArticleComments = async (id) => {
 };
 
 exports.createArticleComment = async (author, body, id) => {
-  const checkValueIsExisting = await checkValueExists(
-    "articles",
-    "article_id",
-    id
-  );
-
-  if (!checkValueIsExisting) {
+  if (author && body) {
     return db
       .query(
         `INSERT INTO comments (author, body, article_id)
@@ -40,14 +34,18 @@ exports.createArticleComment = async (author, body, id) => {
         [author, body, id]
       )
       .then(({ rows }) => {
+        console.log(rows);
         if (rows.length > 0) {
           return rows;
         } else {
           return Promise.reject({ status: 404, msg: "comments not found" });
         }
-      })
-      .catch((err) => {});
+      });
   } else {
-    return Promise.reject({ status: 404, msg: "article_id not found" });
+    if (!author || !body) {
+      return Promise.reject({ status: 400, msg: "Not enough data provided" });
+    } else {
+      return Promise.reject({ status: 404, msg: "article_id not found" });
+    }
   }
 };

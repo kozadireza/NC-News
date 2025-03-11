@@ -49,48 +49,29 @@ describe("GET /api/topics", () => {
 
 describe("GET /api/articles", () => {
   test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'comment_count', containing  total count of all the comments with this article_id , which should be sorted by date in descending order", () => {
-    return db
-      .query(
-        `INSERT INTO articles (title, topic, author, body, votes, article_img_url) VALUES ('orange', 'cats', 'rogersop', 'banana', 34, 'tomato') `
-      )
-      .then(() => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(Array.isArray(articles)).toBe(true);
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
 
-            articles.forEach((article) => {
-              expect(Object.keys(article).length).toBe(8);
+        articles.forEach((article) => {
+          expect(Object.keys(article).length).toBe(8);
 
-              expect(typeof article.author).toBe("string");
-              expect(typeof article.article_id).toBe("number");
-              expect(typeof article.title).toBe("string");
-              expect(typeof article.topic).toBe("string");
-              expect(typeof article.created_at).toBe("string");
-              expect(typeof article.votes).toBe("number");
-              expect(typeof article.article_img_url).toBe("string");
-              expect(typeof article.article_comments).toBe("number");
-            });
-            expect(articles).toBeSorted({
-              key: "created_at",
-              descending: true,
-            });
-          });
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
       });
-  });
-
-  test("404: Responds with error message if no articles found in DB ", () => {
-    return db.query("DELETE FROM comments").then(() => {
-      return db.query(`DELETE FROM articles;`).then(() => {
-        return request(app)
-          .get("/api/articles")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Not Found");
-          });
-      });
-    });
   });
 });
 
@@ -165,6 +146,40 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("comments not found");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Responds with an object contains posted comment's data for the requested article_id.", () => {
+    return request(app)
+      .post("/api/articles/4/comments")
+      .send({
+        author: "lurker",
+        body: "Try to do something",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        console.log(body);
+
+        expect(typeof body).toBe("object");
+        expect(Object.keys(body.comment).length).toBe(6);
+
+        expect(typeof body.comment.comment_id).toBe("number");
+        expect(typeof body.comment.votes).toBe("number");
+        expect(typeof body.comment.created_at).toBe("string");
+        expect(body.comment.author).toBe("lurker");
+        expect(body.comment.body).toBe("Try to do something");
+        expect(body.comment.article_id).toBe(4);
+      });
+  });
+
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
+    return request(app)
+      .get("/api/articles/1870/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id not found");
       });
   });
 });

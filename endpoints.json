@@ -60,5 +60,22 @@
         }
       ]
     }
+  },
+
+  "POST /api/articles/:article_id/comments": {
+    "description": "Returns an object containing the posted comment for the specified article_id.",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "comment_id": 4,
+          "votes": 0,
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "author": "pen32",
+          "body": "Text from the article..",
+          "article_id": 3
+        }
+      ]
+    }
   }
 }

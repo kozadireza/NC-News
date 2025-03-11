@@ -31,9 +31,8 @@ exports.createArticleComment = async (author, body, id) => {
     "article_id",
     id
   );
-  console.log(typeof body);
+
   if (!checkValueIsExisting) {
-    console.log(author, body, id);
     return db
       .query(
         `INSERT INTO comments (author, body, article_id)
@@ -42,15 +41,12 @@ exports.createArticleComment = async (author, body, id) => {
       )
       .then(({ rows }) => {
         if (rows.length > 0) {
-          console.log(rows);
           return rows;
         } else {
           return Promise.reject({ status: 404, msg: "comments not found" });
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   } else {
     return Promise.reject({ status: 404, msg: "article_id not found" });
   }

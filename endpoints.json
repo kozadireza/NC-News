@@ -96,5 +96,11 @@
         }
       ]
     }
+  },
+
+  "DELETE /api/comments/:comment_id": {
+    "description": "Responds with status 204 'No Content' and an empty object after the comment is successfully deleted",
+    "queries": [],
+    "exampleResponse": {}
   }
 }

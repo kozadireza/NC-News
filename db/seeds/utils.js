@@ -20,12 +20,13 @@ exports.formatData = (refObj, keyToRemove, keyToAdd, rawData) => {
 };
 
 exports.checkValueExists = async (table, column, value) => {
+  // console.log(">>>>>");
   // console.log(column);
   // console.log(table);
   // console.log(value);
   const querystr = format(`SELECT * FROM %I WHERE %I = $1;`, table, column);
   const dbOutput = await db.query(querystr, [value]);
-  //console.log(dbOutput);
+  // console.log(dbOutput);
   if (dbOutput.rows.length === 0) {
     // resource does NOT exist
     return Promise.reject({

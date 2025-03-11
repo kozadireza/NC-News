@@ -106,6 +106,30 @@ describe("GET  /api/articles/:article_id", () => {
   });
 });
 
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: Responds with status 204 'No Content' after the comment is successfully deleted", () => {
+    return request(app)
+      .delete("/api/comments/12")
+      .expect(204)
+      .then(async ({ body }) => {
+        expect(body).toEqual({});
+        //check if the comment 12 was successfully deleted
+        const check_result = await db.query(
+          `SELECT * FROM comments WHERE comment_id = 12`
+        );
+        expect(check_result.rows.length).toBe(0);
+      });
+  });
+  test("404: Responds with error 404 and message: comment_id not found, if wrong id was provided", () => {
+    return request(app)
+      .delete("/api/comments/1870")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("comment_id not found");
+      });
+  });
+});
+
 describe("PATCH  /api/articles/:article_id", () => {
   test("200: Responds with an object containing information about updated article with requested id", async () => {
     const old_article_votes0 = await db.query(

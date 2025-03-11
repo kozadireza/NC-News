@@ -327,6 +327,22 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
+describe("GET /api/users", () => {
+  test("200: Responds with an array of user's objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.users)).toBe(true);
+        body.users.forEach((user) => {
+          expect(typeof user.username).toBe("string");
+          expect(typeof user.name).toBe("string");
+          expect(typeof user.avatar_url).toBe("string");
+        });
+      });
+  });
+});
+
 describe("Check the server actions if the unexisting path was requested", () => {
   test("404: Responds with error 400 and message: Not Found, if wrong type of id for the path was provided", () => {
     return request(app)

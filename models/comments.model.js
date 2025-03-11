@@ -34,7 +34,6 @@ exports.createArticleComment = async (author, body, id) => {
         [author, body, id]
       )
       .then(({ rows }) => {
-        console.log(rows);
         if (rows.length > 0) {
           return rows;
         } else {

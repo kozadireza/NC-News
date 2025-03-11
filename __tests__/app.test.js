@@ -115,24 +115,67 @@ describe("GET  /api/articles/:article_id", () => {
         expect(typeof body.article.article_img_url).toBe("string");
       });
   });
-
-  test("404: Responds with error 400 and message: Not Found, if wrong type of id for the path was provided", () => {
-    return request(app)
-      .get("/api/articles/banana")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
-      });
-  });
-});
-
-describe("Check the server actions if the unexisting path was requested", () => {
-  test("404: Responds with error 404 and message: Not Found, if wrong path was provided", () => {
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
     return request(app)
       .get("/api/articles/1870")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article_id not found");
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with an array of comments for the given article_id which  should be served with the most recent comments first.", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(Object.keys(body)[0]).toBe("comments");
+        body.comments.forEach((comment) => {
+          expect(Object.keys(comment).length).toBe(6);
+
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(comment.article_id).toBe(9);
+        });
+        expect(body.comments).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
+    return request(app)
+      .get("/api/articles/1870")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id not found");
+      });
+  });
+
+  test("404: Responds with error 404 and message: comments not found, if requested article does not have comments ", () => {
+    return request(app)
+      .get("/api/articles/12/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("comments not found");
+      });
+  });
+});
+
+describe("Check the server actions if the unexisting path was requested", () => {
+  test("400: Responds with error 400 and message: Not Found, if wrong type of id for the path was provided", () => {
+    return request(app)
+      .get("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });

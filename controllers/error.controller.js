@@ -24,7 +24,6 @@ exports.handlePsqlErrors = (err, req, res, next) => {
 };
 
 exports.handleCustomErrors = (err, req, res, next) => {
-  // console.log(err.msg);
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   }

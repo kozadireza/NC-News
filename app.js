@@ -27,11 +27,9 @@ app.get("/api/topics", getApiTopics);
 app.get("/api/articles", getAllArticles);
 
 app.get("/api/articles/:article_id", getArticleById);
-
 app.patch("/api/articles/:article_id", patchArticleById);
 
 app.get("/api/articles/:article_id/comments", getArticleComments);
-
 app.post("/api/articles/:article_id/comments", postArticleComments);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);

@@ -7,7 +7,7 @@ exports.handlePsqlErrors = (err, req, res, next) => {
   }
   if (err.code === "42703") {
     res.status(400).send({
-      msg: "Invalid column name — please verify your request parameters.",
+      msg: "Invalid column name",
     });
   }
   if (err.code === "23503") {
@@ -16,9 +16,7 @@ exports.handlePsqlErrors = (err, req, res, next) => {
       .send({ msg: "Resource not found — referenced data does not exist." });
   }
   if (err.code === "42601") {
-    res
-      .status(400)
-      .send({ msg: "Syntax Error: Please check your SQL query syntax." });
+    res.status(400).send({ msg: "Invalid query" });
   }
   next(err);
 };

@@ -1,17 +1,21 @@
 const db = require("../db/connection");
-//const { checkValueExists } = require("../db/seeds/utils");
 
 exports.fetchAllArticles = async (queries) => {
   const keyOfQueries = Object.keys(queries);
   const valuesOfQueries = Object.values(queries);
 
   const allowedKeys = ["order", "sort_by", "topic"];
-  const forbiddenColumnsForSorting = [
-    "author",
-    "article_img_url",
-    "topic",
-    "title",
-  ];
+  const nonSortableColumns = ["author", "article_img_url", "topic", "title"];
+  //query's conditions
+  const isSortByAndOrderProvided =
+    keyOfQueries[0] === "sort_by" && keyOfQueries[1] === "order";
+
+  const justSortByProvided =
+    keyOfQueries[0] === "sort_by" && keyOfQueries.length === 1;
+  const justOrderProvided =
+    keyOfQueries[0] === "order" && keyOfQueries.length === 1;
+
+  const isSortColumnValid = !nonSortableColumns.includes(valuesOfQueries[0]);
 
   if (keyOfQueries.length > 0 && !(valuesOfQueries[0] == "")) {
     if (
@@ -29,23 +33,19 @@ exports.fetchAllArticles = async (queries) => {
       }
 
       queryStr += `GROUP BY articles.article_id `;
-      if (
-        keyOfQueries[0] === "sort_by" &&
-        keyOfQueries[1] === "order" &&
-        !forbiddenColumnsForSorting.includes(valuesOfQueries[0])
-      ) {
+
+      if (isSortByAndOrderProvided && isSortColumnValid) {
         queryStr += `ORDER BY articles.${valuesOfQueries[0]} ${valuesOfQueries[1]} `;
       }
-      if (
-        keyOfQueries[0] === "sort_by" &&
-        keyOfQueries.length === 1 &&
-        !forbiddenColumnsForSorting.includes(valuesOfQueries[0])
-      ) {
+      if (justSortByProvided && isSortColumnValid) {
         queryStr += `ORDER BY articles.${valuesOfQueries[0]} DESC `;
       }
+      if (justOrderProvided && isSortColumnValid) {
+        queryStr += `ORDER BY articles.created_at ${valuesOfQueries[0]} `;
+      }
       if (
-        keyOfQueries[0] === "sort_by" &&
-        forbiddenColumnsForSorting.includes(valuesOfQueries[0])
+        (isSortByAndOrderProvided || justSortByProvided) &&
+        !isSortColumnValid
       ) {
         return Promise.reject({
           status: 400,

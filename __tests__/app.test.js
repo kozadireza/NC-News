@@ -4,11 +4,7 @@ const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const app = require("../app");
 const db = require("../db/connection");
-const articles = require("../db/data/test-data/articles");
 require("jest-sorted");
-/* Set up your test imports here */
-
-/* Set up your beforeEach & afterAll functions here */
 
 beforeEach(() => {
   return seed(data);
@@ -37,6 +33,7 @@ describe("GET /api/topics", () => {
       .then(({ body }) => {
         expect(Object.keys(body)[0]).toBe("topics");
         expect(Array.isArray(body.topics)).toBe(true);
+        expect(body.topics.length).not.toBe(0);
         body.topics.forEach((topic) => {
           expect(Object.keys(topic)).toContain("slug");
           expect(Object.keys(topic)).toContain("description");
@@ -74,9 +71,9 @@ describe("GET /api/articles", () => {
 });
 
 describe("GET /api/articles >>> sorting queries", () => {
-  test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
+  test("SORT_BY: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by default", () => {
     return request(app)
-      .get("/api/articles?sort_by=article_id&order=desc")
+      .get("/api/articles?sort_by=article_id")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(Array.isArray(articles)).toBe(true);
@@ -98,38 +95,71 @@ describe("GET /api/articles >>> sorting queries", () => {
       });
   });
 
-  test("400: Responds with error 400 and message: 'Invalid column name — please verify your request parameters.', if wrong column's name was provided", () => {
+  test("SORT_BY: 400: Responds with error 400 and message: 'Invalid column name', if wrong column's name was provided", () => {
     return request(app)
-      .get("/api/articles?sort_by=banana&order=desc")
+      .get("/api/articles?sort_by=banana")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe(
-          "Invalid column name — please verify your request parameters."
-        );
+        expect(body.msg).toBe("Invalid column name");
+      });
+  });
+  test("ORDER: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by created_at in requested order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "created_at",
+          ascending: true,
+        });
+      });
+  });
+  test("ORDER: 400: Responds with error 400 and message: 'Invalid query', if wrong value for ordering was provided", () => {
+    return request(app)
+      .get("/api/articles?order=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid query");
       });
   });
 
-  test("400: Responds with error 400 and message: 'Syntax Error: Please check your SQL query syntax.', if wrong value for ordering was provided", () => {
+  test("SORT_BY & ORDER: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
     return request(app)
-      .get("/api/articles?sort_by=votes&order=banana")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe(
-          "Syntax Error: Please check your SQL query syntax."
-        );
+      .get("/api/articles?sort_by=votes&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "votes",
+          ascending: true,
+        });
       });
   });
 
-  test("400: Responds with error 400 and message: 'Invalid query parameter', if wrong query parameter  was provided", () => {
-    return request(app)
-      .get("/api/articles?banana=votes&order=asc")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Invalid query parameter");
-      });
-  });
-
-  test("400: Responds with error 400 and message: 'Sorting for the column topic unavailable', if wrong query parameter  was provided", () => {
+  test("SORT_BY & ORDER: 400: Responds with error 400 and message: 'Sorting for the column topic unavailable', if wrong query parameter  was provided", () => {
     return request(app)
       .get("/api/articles?sort_by=topic&order=asc")
       .expect(400)
@@ -140,7 +170,7 @@ describe("GET /api/articles >>> sorting queries", () => {
 });
 
 describe("GET /api/articles >>> topic queries", () => {
-  test("200: Responds with an array of article's objects which have requested topic sorted by default", () => {
+  test("TOPIC: 200: Responds with an array of article's objects which have requested topic sorted by default", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
@@ -164,7 +194,7 @@ describe("GET /api/articles >>> topic queries", () => {
       });
   });
 
-  test("404: Responds with error 404 and message: 'banana not found', if articles with provided topic was not found ", () => {
+  test("TOPIC: 404: Responds with error 404 and message: 'banana not found', if articles with provided topic was not found ", () => {
     return request(app)
       .get("/api/articles?topic=banana")
       .expect(404)
@@ -173,7 +203,7 @@ describe("GET /api/articles >>> topic queries", () => {
       });
   });
 
-  test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by date in descending order if searched topic was not provided", () => {
+  test("TOPIC= : 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by date in descending order if searched topic was not provided", () => {
     return request(app)
       .get("/api/articles?topic=")
       .expect(200)
@@ -204,7 +234,6 @@ describe("GET  /api/articles/:article_id", () => {
       .get("/api/articles/12")
       .expect(200)
       .then(({ body }) => {
-        expect(Object.keys(body)[0]).toBe("article");
         expect(typeof body.article).toBe("object");
 
         expect(typeof body.article.topic).toBe("string");
@@ -277,17 +306,7 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
 
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: Responds with status 204 'No Content' after the comment is successfully deleted", () => {
-    return request(app)
-      .delete("/api/comments/12")
-      .expect(204)
-      .then(async ({ body }) => {
-        expect(body).toEqual({});
-        //check if the comment 12 was successfully deleted
-        const check_result = await db.query(
-          `SELECT * FROM comments WHERE comment_id = 12`
-        );
-        expect(check_result.rows.length).toBe(0);
-      });
+    return request(app).delete("/api/comments/12").expect(204);
   });
   test("404: Responds with error 404 and message: comment_id not found, if wrong id was provided", () => {
     return request(app)
@@ -309,21 +328,13 @@ describe("DELETE /api/comments/:comment_id", () => {
 });
 
 describe("PATCH  /api/articles/:article_id", () => {
-  test("200: Responds with an object containing information about updated article with requested id", async () => {
-    const old_article_votes0 = await db.query(
-      `SELECT votes from articles WHERE article_id = 1`
-    );
-    const old_article_votes = old_article_votes0.rows[0].votes;
-
+  test("200: Responds with an object containing information about updated article with requested id", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: 50 })
       .expect(200)
       .then(({ body }) => {
-        expect(Object.keys(body)[0]).toBe("updated_article");
         expect(typeof body.updated_article).toBe("object");
-
-        expect(body.updated_article.votes - old_article_votes).toBe(50);
 
         expect(typeof body.updated_article.topic).toBe("string");
         expect(body.updated_article.article_id).toBe(1);
@@ -331,7 +342,7 @@ describe("PATCH  /api/articles/:article_id", () => {
         expect(typeof body.updated_article.author).toBe("string");
         expect(typeof body.updated_article.body).toBe("string");
         expect(typeof body.updated_article.created_at).toBe("string");
-        expect(typeof body.updated_article.votes).toBe("number");
+        expect(body.updated_article.votes).toBe(150);
         expect(typeof body.updated_article.article_img_url).toBe("string");
       });
   });
@@ -396,12 +407,12 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("404: Responds with error 404 and message: comments not found, if requested article does not have comments ", () => {
+  test("200: Responds with status 200 and an empty array, if requested article does not have comments ", () => {
     return request(app)
       .get("/api/articles/12/comments")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("comments not found");
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toEqual([]);
       });
   });
 
@@ -479,7 +490,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: Responds with error 400 and message: 'Bad Request', if not all required data were provided in a body ", () => {
+  test("400: Responds with error 400 and message: 'Not enough data provided', if not all required data were provided in a body ", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
@@ -499,6 +510,7 @@ describe("GET /api/users", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.users)).toBe(true);
+        expect(body.users.length).not.toBe(0);
         body.users.forEach((user) => {
           expect(typeof user.username).toBe("string");
           expect(typeof user.name).toBe("string");

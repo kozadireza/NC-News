@@ -14,18 +14,14 @@ exports.fetchArticleComments = async (id) => {
         [id]
       )
       .then(({ rows }) => {
-        if (rows.length > 0) {
-          return rows;
-        } else {
-          return Promise.reject({ status: 404, msg: "comments not found" });
-        }
+        return rows;
       });
   } else {
     return Promise.reject({ status: 404, msg: "article_id not found" });
   }
 };
 
-exports.createArticleComment = async (author, body, id) => {
+exports.createArticleComment = (author, body, id) => {
   if (author && body) {
     return db
       .query(
@@ -37,14 +33,10 @@ exports.createArticleComment = async (author, body, id) => {
         if (rows.length > 0) {
           return rows;
         } else {
-          return Promise.reject({ status: 404, msg: "comments not found" });
+          return Promise.reject({ status: 404, msg: "article_id not found" });
         }
       });
   } else {
-    if (!author || !body) {
-      return Promise.reject({ status: 400, msg: "Not enough data provided" });
-    } else {
-      return Promise.reject({ status: 404, msg: "article_id not found" });
-    }
+    return Promise.reject({ status: 400, msg: "Not enough data provided" });
   }
 };

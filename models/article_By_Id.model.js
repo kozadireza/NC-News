@@ -7,10 +7,15 @@ exports.fetchArticleById = async (id) => {
     "article_id",
     id
   );
+  console.log(id);
   if (!checkValueIsExisting) {
     return db
-      .query(`SELECT * from articles WHERE article_id = $1`, [id])
+      .query(
+        `SELECT articles.author, articles.body, articles.article_id, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count FROM  articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id ORDER BY created_at desc`,
+        [id]
+      )
       .then(({ rows }) => {
+        //console.log(rows);
         return rows[0];
       });
   } else {
@@ -37,3 +42,5 @@ exports.updateArticleById = async (updatingData, id) => {
     return Promise.reject({ status: 404, msg: "Not Found" });
   }
 };
+
+`SELECT articles.author, articles.article_id, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS article_comments FROM  articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at desc`;

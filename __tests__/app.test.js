@@ -236,6 +236,45 @@ describe("GET  /api/articles/:article_id", () => {
   });
 });
 
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("200: Responds with an object containing information about article (including new column 'comment_count', which is the total count of all the comments with this article_id) with requested id", () => {
+    return request(app)
+      .get("/api/articles/12")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Object.keys(body)[0]).toBe("article");
+        expect(typeof body.article).toBe("object");
+
+        expect(typeof body.article.topic).toBe("string");
+        expect(body.article.article_id).toBe(12);
+        expect(typeof body.article.title).toBe("string");
+        expect(typeof body.article.author).toBe("string");
+        expect(typeof body.article.body).toBe("string");
+        expect(typeof body.article.created_at).toBe("string");
+        expect(typeof body.article.votes).toBe("number");
+        expect(typeof body.article.article_img_url).toBe("string");
+        expect(typeof body.article.comment_count).toBe("number");
+      });
+  });
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
+    return request(app)
+      .get("/api/articles/1870")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id not found");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid data format — please check your input., if wrong type data for id was provided", () => {
+    return request(app)
+      .get("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid data format — please check your input.");
+      });
+  });
+});
+
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: Responds with status 204 'No Content' after the comment is successfully deleted", () => {
     return request(app)

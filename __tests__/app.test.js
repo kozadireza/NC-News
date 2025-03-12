@@ -4,6 +4,7 @@ const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const app = require("../app");
 const db = require("../db/connection");
+const articles = require("../db/data/test-data/articles");
 require("jest-sorted");
 /* Set up your test imports here */
 
@@ -47,7 +48,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles", () => {
-  test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'comment_count', containing  total count of all the comments with this article_id , which should be sorted by date in descending order", () => {
+  test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by date in descending order", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -68,6 +69,72 @@ describe("GET /api/articles", () => {
           key: "created_at",
           descending: true,
         });
+      });
+  });
+});
+
+describe("GET /api/articles >>> sorting queries", () => {
+  test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id&order=desc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "article_id",
+          descending: true,
+        });
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid column name — please verify your request parameters.', if wrong column's name was provided", () => {
+    return request(app)
+      .get("/api/articles?sort_by=banana&order=desc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Invalid column name — please verify your request parameters."
+        );
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Syntax Error: Please check your SQL query syntax.', if wrong value for ordering was provided", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Syntax Error: Please check your SQL query syntax."
+        );
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid query parameter', if wrong query parameter  was provided", () => {
+    return request(app)
+      .get("/api/articles?banana=votes&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid query parameter");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Sorting for the column topic unavailable', if wrong query parameter  was provided", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Sorting for the column topic unavailable");
       });
   });
 });

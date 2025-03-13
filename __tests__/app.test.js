@@ -327,6 +327,62 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: Responds with the updated comment", () => {
+    return request(app)
+      .patch("/api/comments/12")
+      .send({ inc_votes: 100 })
+      .expect(200)
+      .then(({ body: { updated_comment } }) => {
+        expect(typeof updated_comment).toBe("object");
+        expect(updated_comment.votes).toBe(100);
+        expect(typeof updated_comment.comment_id).toBe("number");
+        expect(typeof updated_comment.article_id).toBe("number");
+        expect(typeof updated_comment.body).toBe("string");
+        expect(typeof updated_comment.author).toBe("string");
+        expect(typeof updated_comment.created_at).toBe("string");
+      });
+  });
+  test("404: Responds with error 404 and message: comment_id not found, if wrong id was provided", () => {
+    return request(app)
+      .patch("/api/comments/1870")
+      .send({ inc_votes: 100 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("comment_id not found");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid data format — please check your input.', if wrong type of data for id was provided", () => {
+    return request(app)
+      .patch("/api/comments/banana")
+      .send({ inc_votes: 100 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid data format — please check your input.");
+      });
+  });
+  test("400: Responds with error 400 and message: 'Invalid data format — please check your input.', if wrong type of data for id was provided", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: "blablabla" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid data format — please check your input.");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid data format — please check your input.', if wrong type of data for id was provided", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not enough data for updating comment");
+      });
+  });
+});
+
 describe("PATCH  /api/articles/:article_id", () => {
   test("200: Responds with an object containing information about updated article with requested id", () => {
     return request(app)
@@ -349,6 +405,7 @@ describe("PATCH  /api/articles/:article_id", () => {
   test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
     return request(app)
       .patch("/api/articles/1870")
+      .send({ inc_votes: 50 })
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article_id not found");
@@ -358,6 +415,7 @@ describe("PATCH  /api/articles/:article_id", () => {
   test("400: Responds with error 400 and message: 'Invalid data format — please check your input.', if wrong type of data for id was provided", () => {
     return request(app)
       .patch("/api/articles/banana")
+      .send({ inc_votes: 50 })
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid data format — please check your input.");
@@ -371,6 +429,16 @@ describe("PATCH  /api/articles/:article_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid data format — please check your input.");
+      });
+  });
+
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not enough data for updating article");
       });
   });
 });

@@ -58,31 +58,59 @@ PGDATABASE=_name of your DATABASE for TESTING_
 
 npm run setup-dbs
 npm run seed-dev
+npm run test
 
 **API Endpoints**
 
 #GET#
 
-[/api](https://vscode.dev/github/kozadireza/NC-News/blob/main/endpoints.json)
-Description: Serves a JSON representation of all available endpoints.
+[/api]
+Serves a JSON representation of all available endpoints.
 
-[/api/topics](https://vscode.dev/github/kozadireza/NC-News/blob/main/endpoints.json#L8-L10)
+[/api/topics]
 Fetch all topics
 
-[/api/articles](https://vscode.dev/github/kozadireza/NC-News/blob/main/endpoints.json#L17-L25)
+[/api/articles]
 Fetch all articles, sorted by the most recent first by default.
 
-#Available Queries:
-
+\*Available Queries:
 author: Filter articles by a specific author.
 topic: Filter articles by a specific topic.
 sort_by: Sort articles by any valid column (e.g., created_at, votes, title). Defaults to created_at.
 order: Specify the order of sorting (asc for ascending or desc for descending). Defaults to desc.
 
-[/api/articles/:article_id](https://vscode.dev/github/kozadireza/NC-News/blob/main/endpoints.json#L35-L44)
+[/api/articles/:article_id]
+Fetch a single article by its unique article_id.
 
-[/api/articles/:article_id/comments](https://vscode.dev/github/kozadireza/NC-News/blob/main/endpoints.json#L53-L60)
+[/api/articles/:article_id/comments]
+Fetch all comments for a specific article, sorted by the most recent first by default.
 
-[/api/comments/:comment_id]()
+[/api/users]
+Fetch all users.
 
-Clear instructions of how to clone, install dependencies, seed local database, and run tests.
+#DELETE#
+
+[/api/comments/:comment_id]
+Delete a comment by its unique comment_id.
+
+#POST#
+
+["/api/articles/:article_id/comments"]
+
+#PATCH#
+["/api/articles/:article_id"]
+
+**Error Handling**
+
+This API includes comprehensive error handling to ensure clear and helpful responses for users.
+Below are the key error types and their respective messages:
+
+400 - Invalid data format: Triggered when data types are incorrect (e.g., attempting to pass a string instead of a number).
+400 - Invalid column name: Occurs when querying a non-existent column in the database.
+400 - Resource not found: Triggered when referencing data that does not exist (e.g., adding a comment to a non-existent article).
+400 - Invalid query syntax: Triggered when a query has incorrect syntax.
+400 - Bad Request — For invalid or malformed data requests.
+
+404 Page not found - Any undefined endpoint.
+
+500 Unable to reach server.

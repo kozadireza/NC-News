@@ -381,7 +381,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/9/comments")
       .expect(200)
       .then(({ body }) => {
-        console.log(body);
         expect(Array.isArray(body.comments)).toBe(true);
         expect(Object.keys(body)[0]).toBe("comments");
         body.comments.forEach((comment) => {
@@ -517,6 +516,28 @@ describe("GET /api/users", () => {
           expect(typeof user.name).toBe("string");
           expect(typeof user.avatar_url).toBe("string");
         });
+      });
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  test("200: Responds with an user's data object which should have the following properties:username, avatar_url, name", () => {
+    return request(app)
+      .get("/api/users/rogersop")
+      .expect(200)
+      .then(({ body: { user_data } }) => {
+        expect(user_data).toHaveProperty("username");
+        expect(user_data).toHaveProperty("avatar_url");
+        expect(user_data).toHaveProperty("name");
+      });
+  });
+
+  test("404: Responds with status 404 and  error msg: 'User not found', when requested username not found", () => {
+    return request(app)
+      .get("/api/users/roger")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User not found");
       });
   });
 });

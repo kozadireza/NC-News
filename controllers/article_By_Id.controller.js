@@ -16,10 +16,9 @@ exports.getArticleById = (req, res, next) => {
 
 exports.patchArticleById = (req, res, next) => {
   const id = Number(req.params.article_id);
-  const [key] = Object.keys(req.body);
-  const inc_votes = req.body[key];
+  const updating_info = req.body;
 
-  updateArticleById(inc_votes, id)
+  updateArticleById(updating_info, id)
     .then((data) => {
       res.send({ updated_article: data });
     })

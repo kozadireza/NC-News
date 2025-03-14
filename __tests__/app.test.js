@@ -571,6 +571,75 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  test("201: Responds with an object contains posted article's data, when enough data were provided", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        title: "Cool pineapple for mitch",
+        topic: "mitch",
+        author: "lurker",
+        body: "Try to do something",
+      })
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(typeof article).toBe("object");
+
+        expect(typeof article.article_id).toBe("number");
+        expect(typeof article.votes).toBe("number");
+        expect(typeof article.created_at).toBe("string");
+        expect(article.author).toBe("lurker");
+        expect(article.body).toBe("Try to do something");
+        expect(article.topic).toBe("mitch");
+        expect(article.title).toBe("Cool pineapple for mitch");
+      });
+  });
+
+  test("400: Responds with error 404 and message: 'Not enough data provided!', if not enough data was provided", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "lurker",
+        body: "Try to do something",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not enough data provided!");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid column name', if wrong  name of property was used in sended object", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        title: "Cool pineapple for mitch",
+        topic: "mitch",
+        authorsn: "lurker",
+        body: "Try to do something",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid column name");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Resource not found — referenced data does not exist.', if wrong type of data were provided in a body ", () => {
+    return request(app)
+      .post("/api/articles/")
+      .send({
+        title: "Cool pineapple for mitch",
+        topic: 987,
+        author: "lurker",
+        body: "Try to do something",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Resource not found — referenced data does not exist."
+        );
+      });
+  });
+});
 describe("GET /api/users", () => {
   test("200: Responds with an array of user's objects", () => {
     return request(app)

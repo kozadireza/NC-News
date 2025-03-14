@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.fetchAllArticles = async (queries) => {
+exports.fetchAllArticles = (queries) => {
   const keyOfQueries = Object.keys(queries);
   const valuesOfQueries = Object.values(queries);
 
@@ -82,5 +82,26 @@ exports.fetchAllArticles = async (queries) => {
       .then(({ rows }) => {
         return rows;
       });
+  }
+};
+
+exports.addArticle = (newArticleInfo) => {
+  [title, topic, author, body] = Object.keys(newArticleInfo);
+  const valuesOfNewArticleInfo = Object.values(newArticleInfo);
+
+  if (
+    Object.keys(newArticleInfo).length >= 4 &&
+    valuesOfNewArticleInfo.length >= 4
+  ) {
+    return db
+      .query(
+        `INSERT INTO articles (${title}, ${topic}, ${author}, ${body}) VALUES ($1,$2, $3, $4 ) RETURNING *`,
+        [...valuesOfNewArticleInfo]
+      )
+      .then(({ rows }) => {
+        return rows[0];
+      });
+  } else {
+    return Promise.reject({ status: 400, msg: "Not enough data provided!" });
   }
 };

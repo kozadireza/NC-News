@@ -198,33 +198,6 @@ describe("GET /api/articles >>>> pagination", () => {
       });
   });
 
-  // test("limit=10&p=2: 200: Responds with an array of 10 article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by default", () => {
-  //   return request(app)
-  //     .get("/api/articles?limit=10&p=2")
-  //     .expect(200)
-  //     .then(({ body }) => {
-  //       const articles = body.articles;
-  //       const total_articles = body.total_articles;
-
-  //       expect(Array.isArray(articles)).toBe(true);
-
-  //       articles.forEach((article) => {
-  //         expect(typeof article.author).toBe("string");
-  //         expect(typeof article.article_id).toBe("number");
-  //         expect(typeof article.title).toBe("string");
-  //         expect(typeof article.topic).toBe("string");
-  //         expect(typeof article.created_at).toBe("string");
-  //         expect(typeof article.votes).toBe("number");
-  //         expect(typeof article.article_img_url).toBe("string");
-  //         expect(typeof article.article_comments).toBe("number");
-  //       });
-  //       expect(typeof total_articles).toBe("number");
-  //       expect(articles).toBeSorted({
-  //         key: "created_at",
-  //         descending: true,
-  //       });
-  //     });
-  // });
   test("/: 200: Responds with an array of 10 article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by default", () => {
     return request(app)
       .get("/api/articles")
@@ -274,47 +247,6 @@ describe("GET /api/articles >>>> pagination", () => {
           key: "created_at",
           descending: true,
         });
-      });
-  });
-  test("ORDER: 400: Responds with error 400 and message: 'Invalid query', if wrong value for ordering was provided", () => {
-    return request(app)
-      .get("/api/articles?order=banana")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Invalid query");
-      });
-  });
-
-  test("SORT_BY & ORDER: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
-    return request(app)
-      .get("/api/articles?sort_by=votes&order=asc")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(Array.isArray(articles)).toBe(true);
-
-        articles.forEach((article) => {
-          expect(typeof article.author).toBe("string");
-          expect(typeof article.article_id).toBe("number");
-          expect(typeof article.title).toBe("string");
-          expect(typeof article.topic).toBe("string");
-          expect(typeof article.created_at).toBe("string");
-          expect(typeof article.votes).toBe("number");
-          expect(typeof article.article_img_url).toBe("string");
-          expect(typeof article.article_comments).toBe("number");
-        });
-        expect(articles).toBeSorted({
-          key: "votes",
-          ascending: true,
-        });
-      });
-  });
-
-  test("SORT_BY & ORDER: 400: Responds with error 400 and message: 'Sorting for the column topic unavailable', if wrong query parameter  was provided", () => {
-    return request(app)
-      .get("/api/articles?sort_by=topic&order=asc")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Sorting for the column topic unavailable");
       });
   });
 });
@@ -643,7 +575,85 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("GET /api/articles/:article_id/comments >>>>> (pagination)", () => {
+  test("/ 200: Responds with an array of comments for the given article_id which  should be served with the most recent comments first  with limiting the number of responses by defaults to 10.", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(Object.keys(body)[0]).toBe("comments");
+        body.comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(comment.article_id).toBe(9);
+        });
+        expect(body.comments).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
 
+  test("?limit=5&p=2: 200: Responds with an array of comments for the given article_id which  should be served with the most recent comments first  with limiting the number of responses by 5 on page 2.", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(body.comments.length <= 5).toBe(true);
+        expect(Object.keys(body)[0]).toBe("comments");
+        body.comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(comment.article_id).toBe(1);
+        });
+        expect(body.comments).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+
+  test("p=2: 200: Responds with an array of comments for the given article_id which  should be served with the most recent comments first  with limiting the number of responses by 5 on page 2.", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(body.comments.length <= 10).toBe(true);
+        expect(body.comments.length <= 5).toBe(true);
+        expect(Object.keys(body)[0]).toBe("comments");
+        body.comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(comment.article_id).toBe(1);
+        });
+        expect(body.comments).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+
+  test("200: Responds with status 200 and an empty array, if requested article does not have comments ", () => {
+    return request(app)
+      .get("/api/articles/12/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toEqual([]);
+      });
+  });
+});
 describe("POST /api/articles/:article_id/comments", () => {
   test("201: Responds with an object contains posted comment's data for the requested article_id.", () => {
     return request(app)

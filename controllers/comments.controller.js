@@ -5,7 +5,8 @@ const {
 
 exports.getArticleComments = (req, res, next) => {
   const id = Number(req.params.article_id);
-  fetchArticleComments(id)
+  const queries = req.query;
+  fetchArticleComments(queries, id)
     .then((comments_data) => {
       res.send({ comments: comments_data });
     })

@@ -43,7 +43,48 @@ describe("GET /api/topics", () => {
       });
   });
 });
+describe("POST /api/topics", () => {
+  test("201: Responds with an object contains posted topic's data.", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "topic name here",
+        description: "description here",
+      })
+      .expect(201)
+      .then(({ body: { newTopic } }) => {
+        expect(typeof newTopic).toBe("object");
+        expect(newTopic.slug).toBe("topic name here");
+        expect(newTopic.description).toBe("description here");
+        expect(newTopic.img_url).toBe(null);
+      });
+  });
 
+  test("400: Responds with error 400 and message: 'Not enough data provided!', if not all required data is not provided.", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: 4568,
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not enough data provided!");
+      });
+  });
+
+  test("400: Responds with error 400 and message: 'Invalid column name', if wrong format of data were provided in a body ", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        author: 679,
+        body: "Try to do something",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid column name");
+      });
+  });
+});
 describe("GET /api/articles", () => {
   test("200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by date in descending order", () => {
     return request(app)

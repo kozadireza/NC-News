@@ -169,6 +169,156 @@ describe("GET /api/articles >>> sorting queries", () => {
   });
 });
 
+describe("GET /api/articles >>>> pagination", () => {
+  test("limit=6&p=2: 200: Responds with an array of 10 article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by default", () => {
+    return request(app)
+      .get("/api/articles?limit=6&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        const total_articles = body.total_articles;
+
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(typeof total_articles).toBe("number");
+        expect(articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+
+  // test("limit=10&p=2: 200: Responds with an array of 10 article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by default", () => {
+  //   return request(app)
+  //     .get("/api/articles?limit=10&p=2")
+  //     .expect(200)
+  //     .then(({ body }) => {
+  //       const articles = body.articles;
+  //       const total_articles = body.total_articles;
+
+  //       expect(Array.isArray(articles)).toBe(true);
+
+  //       articles.forEach((article) => {
+  //         expect(typeof article.author).toBe("string");
+  //         expect(typeof article.article_id).toBe("number");
+  //         expect(typeof article.title).toBe("string");
+  //         expect(typeof article.topic).toBe("string");
+  //         expect(typeof article.created_at).toBe("string");
+  //         expect(typeof article.votes).toBe("number");
+  //         expect(typeof article.article_img_url).toBe("string");
+  //         expect(typeof article.article_comments).toBe("number");
+  //       });
+  //       expect(typeof total_articles).toBe("number");
+  //       expect(articles).toBeSorted({
+  //         key: "created_at",
+  //         descending: true,
+  //       });
+  //     });
+  // });
+  test("/: 200: Responds with an array of 10 article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by default", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        const total_articles = body.total_articles;
+
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(10);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(typeof total_articles).toBe("number");
+        expect(articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+  test("/?p=2: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by created_at in requested order", () => {
+    return request(app)
+      .get("/api/articles?p=2")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+  test("ORDER: 400: Responds with error 400 and message: 'Invalid query', if wrong value for ordering was provided", () => {
+    return request(app)
+      .get("/api/articles?order=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid query");
+      });
+  });
+
+  test("SORT_BY & ORDER: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "votes",
+          ascending: true,
+        });
+      });
+  });
+
+  test("SORT_BY & ORDER: 400: Responds with error 400 and message: 'Sorting for the column topic unavailable', if wrong query parameter  was provided", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Sorting for the column topic unavailable");
+      });
+  });
+});
+
 describe("GET /api/articles >>> topic queries", () => {
   test("TOPIC: 200: Responds with an array of article's objects which have requested topic sorted by default", () => {
     return request(app)

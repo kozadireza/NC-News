@@ -16,7 +16,6 @@ exports.createNewTopic = (newTopicInfo) => {
         [...valuesOfNewTopic]
       )
       .then(({ rows }) => {
-        console.log(rows);
         return { newTopic: rows[0] };
       });
   } else {

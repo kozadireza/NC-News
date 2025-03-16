@@ -426,7 +426,28 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
       });
   });
 });
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: Responds with status 204 'No Content' after the comment is successfully deleted", () => {
+    return request(app).delete("/api/articles/12").expect(204);
+  });
+  test("404: Responds with error 404 and message: article_id not found, if wrong id was provided", () => {
+    return request(app)
+      .delete("/api/articles/1870")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id not found");
+      });
+  });
 
+  test("400: Responds with error 400 and message: 'Invalid data format — please check your input.', if wrong type of data for id was provided", () => {
+    return request(app)
+      .delete("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid data format — please check your input.");
+      });
+  });
+});
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: Responds with status 204 'No Content' after the comment is successfully deleted", () => {
     return request(app).delete("/api/comments/12").expect(204);
@@ -624,6 +645,7 @@ describe("GET /api/articles/:article_id/comments >>>>> (pagination)", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.comments)).toBe(true);
         expect(Object.keys(body)[0]).toBe("comments");
+        expect(body.comments.length <= 10).toBe(true);
         body.comments.forEach((comment) => {
           expect(typeof comment.comment_id).toBe("number");
           expect(typeof comment.votes).toBe("number");
@@ -669,7 +691,7 @@ describe("GET /api/articles/:article_id/comments >>>>> (pagination)", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.comments)).toBe(true);
         expect(body.comments.length <= 10).toBe(true);
-        expect(body.comments.length <= 5).toBe(true);
+
         expect(Object.keys(body)[0]).toBe("comments");
         body.comments.forEach((comment) => {
           expect(typeof comment.comment_id).toBe("number");

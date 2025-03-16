@@ -72,7 +72,7 @@ describe("POST /api/topics", () => {
       });
   });
 
-  test("400: Responds with error 400 and message: 'Resource not found — referenced data does not exist.', if wrong format of data were provided in a body ", () => {
+  test("400: Responds with error 400 and message: 'Invalid column name', if wrong format of data were provided in a body ", () => {
     return request(app)
       .post("/api/topics")
       .send({

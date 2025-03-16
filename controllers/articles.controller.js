@@ -5,7 +5,7 @@ exports.getAllArticles = (req, res, next) => {
 
   fetchAllArticles(query)
     .then((articlesData) => {
-      res.send({ articles: articlesData });
+      res.send(articlesData);
     })
     .catch((err) => {
       next(err);

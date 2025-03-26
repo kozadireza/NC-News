@@ -6,7 +6,7 @@ An API for managing and interacting with news articles, topics, comments, and us
 
 ## Hosted Version
 
-## You can access the hosted version of this API here: [https://nc-news-b8jg.onrender.com]
+## You can access the hosted version of this API here: [https://nc-news-b8jg.onrender.com/api]
 
 ## Features
 

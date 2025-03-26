@@ -1,8 +1,8 @@
-# NC News Seeding
+# NC News 
 
 https://nc-news-b8jg.onrender.com
 
-A RESTful API for managing and interacting with news articles, topics, comments, and users. This project is designed to simulate the backend of a news aggregation platform, allowing users to retrieve, post, update, and delete data.
+An API for managing and interacting with news articles, topics, comments, and users. This project is designed to simulate the backend of a news aggregation platform, allowing users to retrieve, post, update, and delete data.
 
 ## Hosted Version
 

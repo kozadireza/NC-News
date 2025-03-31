@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routers/apiRouter");
-
+const cors = require("cors");
+app.use(cors());
 const { getIPA } = require("./controllers/api.controller");
 const {
   handlePsqlErrors,

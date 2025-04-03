@@ -200,6 +200,30 @@ describe("GET /api/articles >>> sorting queries", () => {
       });
   });
 
+  test("SORT_BY & ORDER + topic: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
+    return request(app)
+      .get("/api/articles?topic=cats&sort_by=article_comments&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_comments).toBe("number");
+        });
+        expect(articles).toBeSorted({
+          key: "article_comments",
+          ascending: true,
+        });
+      });
+  });
+
   test("SORT_BY & ORDER: 400: Responds with error 400 and message: 'Sorting for the column topic unavailable', if wrong query parameter  was provided", () => {
     return request(app)
       .get("/api/articles?sort_by=topic&order=asc")
@@ -322,7 +346,7 @@ describe("GET /api/articles >>> topic queries", () => {
       .get("/api/articles?topic=banana")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("banana not found");
+        expect(body.msg).toBe("no articles found");
       });
   });
 

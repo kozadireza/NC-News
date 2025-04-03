@@ -41,13 +41,11 @@ exports.updateArticleById = async (updatingData, id) => {
 };
 
 exports.removeArticleById = (id) => {
-  console.log(id);
   return db
     .query(`DELETE FROM articles WHERE article_id = $1 RETURNING *`, [
       Number(id),
     ])
     .then(({ rows }) => {
-      console.log(rows);
       if (rows.length > 0) {
         return rows[0];
       } else {

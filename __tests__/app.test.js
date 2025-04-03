@@ -178,7 +178,7 @@ describe("GET /api/articles >>> sorting queries", () => {
 
   test("SORT_BY & ORDER: 200: Responds with an array of article's objects, excludes the property:'body' and  includes new property column: 'article_comments', containing  total count of all the comments with this article_id , which should be sorted by requested column and order", () => {
     return request(app)
-      .get("/api/articles?sort_by=votes&order=asc")
+      .get("/api/articles?sort_by=article_comments&order=asc")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(Array.isArray(articles)).toBe(true);
@@ -194,7 +194,7 @@ describe("GET /api/articles >>> sorting queries", () => {
           expect(typeof article.article_comments).toBe("number");
         });
         expect(articles).toBeSorted({
-          key: "votes",
+          key: "article_comments",
           ascending: true,
         });
       });

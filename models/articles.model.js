@@ -7,6 +7,7 @@ exports.fetchAllArticles = async (queries) => {
   const allowedKeys = ["order", "sort_by", "topic", "limit", "p"];
   const nonSortableColumns = ["author", "article_img_url", "topic", "title"];
   ///SORT CONDITIONS
+
   const isSortByAndOrderProvided =
     keyOfQueries[0] === "sort_by" && keyOfQueries[1] === "order";
   const justSortByProvided =
@@ -47,10 +48,18 @@ exports.fetchAllArticles = async (queries) => {
       queryStr += `GROUP BY articles.article_id `;
 
       if (isSortByAndOrderProvided && isSortColumnValid) {
-        queryStr += `ORDER BY articles.${valuesOfQueries[0]} ${valuesOfQueries[1]} `;
+        if (valuesOfQueries[0] === "article_comments") {
+          queryStr += `ORDER BY COUNT(comments.comment_id) ${valuesOfQueries[1]} `;
+        } else {
+          queryStr += `ORDER BY articles.${valuesOfQueries[0]} ${valuesOfQueries[1]} `;
+        }
       }
       if (justSortByProvided && isSortColumnValid) {
-        queryStr += `ORDER BY articles.${valuesOfQueries[0]} DESC `;
+        if (valuesOfQueries[0] === "article_comments") {
+          queryStr += `ORDER BY COUNT(comments.comment_id) DESC`;
+        } else {
+          queryStr += `ORDER BY articles.${valuesOfQueries[0]} DESC `;
+        }
       }
       if (justOrderProvided && isSortColumnValid) {
         queryStr += `ORDER BY articles.created_at ${valuesOfQueries[0]} `;

@@ -1,8 +1,6 @@
 const db = require("../db/connection");
 
 exports.fetchAllArticles = async (queries) => {
-  console.log(queries);
-
   const allowedKeys = ["order", "sort_by", "topic", "limit", "p"];
   const nonSortableColumns = ["author", "article_img_url", "topic", "title"];
   const isSortColumnValid = !nonSortableColumns.includes(queries.sort_by);
@@ -30,7 +28,7 @@ exports.fetchAllArticles = async (queries) => {
       FROM  articles 
       LEFT JOIN comments ON articles.article_id = comments.article_id\n`;
 
-  if (queries.topic) {
+  if (queries.topic && queries.topic !== "null") {
     queryStr += `WHERE articles.topic = ${"$"}${dollarSign++}\n`;
     inputValues.push(queries.topic);
   }
@@ -52,7 +50,7 @@ exports.fetchAllArticles = async (queries) => {
     case undefined:
       column = "articles.created_at";
       break;
-    case null:
+    case "null":
       column = "articles.created_at";
       break;
 
@@ -60,16 +58,15 @@ exports.fetchAllArticles = async (queries) => {
       column = `articles.${queries.sort_by}`; // we've mitigated injection attacks because we know that isSortColumnValid
   }
   // todo: order is subject to injection attack here. Check its value is either ASC or DESC
-  queryStr += `ORDER BY ${column} ${queries.order ? queries.order : "DESC"}\n`;
+  queryStr += `ORDER BY ${column} ${
+    queries.order && queries.order !== "null" ? queries.order : "DESC"
+  }\n`;
 
   let limit = Number(queries.limit) || 10;
   let offset = ((Number(queries.p) || 1) - 1) * limit;
   queryStr += `LIMIT $${dollarSign++} OFFSET $${dollarSign++}\n`;
   inputValues.push(limit);
   inputValues.push(Number(offset));
-
-  console.log({ queryStr });
-  console.log({ inputValues });
 
   return db.query(queryStr, inputValues).then(({ rows }) => {
     if (rows.length === 0) {
